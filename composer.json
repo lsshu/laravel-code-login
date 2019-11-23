@@ -14,8 +14,18 @@
         "lsshu/wechat": "^1.0"
     },
     "autoload": {
+        "files": [
+            "src/helpers.php"
+        ],
         "psr-4": {
             "Lsshu\\LaravelCodeLogin\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Lsshu\\LaravelCodeLogin\\ServiceProvider"
+            ]
         }
     }
 }
