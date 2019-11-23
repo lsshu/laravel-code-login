@@ -1,0 +1,21 @@
+{
+    "name": "lsshu/laravel-code-login",
+    "description": "dev",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "lsshu",
+            "email": "admin@lsshu.cn"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+        "simplesoftwareio/simple-qrcode": "^2.0",
+        "lsshu/wechat": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lsshu\\LaravelCodeLogin\\": "src"
+        }
+    }
+}
