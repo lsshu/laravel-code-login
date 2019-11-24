@@ -7,9 +7,11 @@
  */
 
 namespace Lsshu\LaravelCodeLogin;
+use Lsshu\LaravelCodeLogin\models\WechatUserInfo;
 use Encore\Admin\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Lsshu\Wechat\Service;
+use Illuminate\Support\Arr;
 
 class Controller extends AuthController
 {
@@ -23,24 +25,28 @@ class Controller extends AuthController
         if($path!="admin"){
             $config = require config("admin.extensions.multitenancy.$path");
             config(['admin' => $config]);
-            config(array_dot(config('admin.auth', []), 'auth.'));
+            config(Arr::dot(config('admin.auth', []), 'auth.'));
         }
     }
     /**
      * 授权登录
      * @param string $path
+     * @param string $force
      * @return bool|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    protected function authLogin($path = 'admin')
+    protected function authLogin($path = 'admin',$force = false)
     {
-        $config = config('logins.account',[]);
+        $config = config('logins.account',[
+            'appId'=>env('ACCOUNT_APPID',''),
+            'appSecret'=>env('ACCOUNT_APPSECRET',''),
+        ]);
         $account = Service::account($config);
-        if( !session()->has('wx_openid') ){
+        if($force || !session()->has('wx_openid') ){
             /*记录当前地址*/
             session(['wx_current_url'=>url()->full()]);
             // 未登录
             $redirect =$account->getAuthorizeBaseInfo(
-                route(config('logins.route.name.authorize_callback','authorize_callback'),['path'=>$path]),
+                route(config('logins.route.name.authorize_callback','authorize_callbacks'),['path'=>$path]),
                 ((isset($this->weLoginType) && $this->weLoginType ==='snsapi_base') || (config('logins.login_type') && config('logins.login_type')==='snsapi_base'))?'snsapi_base':'snsapi_userinfo'
             );
             return redirect($redirect);
@@ -60,9 +66,12 @@ class Controller extends AuthController
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function code_authorize_callback(Request $request)
+    public function authorize_callbacks(Request $request)
     {
-        $config = config('logins.account',[]);
+        $config = config('logins.account',[
+            'appId'=>env('ACCOUNT_APPID',''),
+            'appSecret'=>env('ACCOUNT_APPSECRET',''),
+        ]);
         $account = Service::account($config);
         $data = $request->all();
         /*获取openid*/
